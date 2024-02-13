@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { useOutletContext } from "react-router-dom";
 
+import PropTypes from "prop-types";
+
 const initial = {
   title: "",
   content: "",
@@ -116,5 +118,9 @@ function AddBlog({ userId }) {
     </div>
   );
 }
+
+AddBlog.propTypes = {
+  userId: PropTypes.string,
+};
 
 export default AddBlog;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 function SignupOTP({ user }) {
   const [otp, setOtp] = useState("");
@@ -124,5 +125,9 @@ function SignupOTP({ user }) {
     </div>
   );
 }
+
+SignupOTP.propTypes = {
+  user: PropTypes.object,
+};
 
 export default SignupOTP;
