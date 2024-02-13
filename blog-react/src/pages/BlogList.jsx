@@ -51,7 +51,7 @@ function BlogList({ user }) {
   }, [currentPage, user.userId, token]);
 
   useEffect(() => {
-    async function getUserName() {
+    async function getUserDetails() {
       if (token != null) {
         const response = await fetch(
           `http://localhost:8080/api/v1/users/${user.userId}`,
@@ -64,7 +64,7 @@ function BlogList({ user }) {
       }
     }
 
-    getUserName();
+    getUserDetails();
   }, [user.userId, token]);
 
   function initializePageNumbers(pages) {

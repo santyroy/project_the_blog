@@ -13,6 +13,7 @@ import SignupOTP from "./pages/SignupOTP";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import ResetPassword from "./pages/ResetPassword";
+import Settings from "./pages/Profile";
 
 function App() {
   const [user, setUser] = useState({
@@ -42,6 +43,10 @@ function App() {
           <Route path="blogs/:id" element={<BlogDetail />} />
           <Route path="blogs/:id/edit" element={<BlogEdit />} />
           <Route path="admin" element={<AdminDashboard />} />
+          <Route
+            path="profile/:id"
+            element={<Settings user={user} setUser={setUser} />}
+          />
         </Route>
       </Routes>
     </main>

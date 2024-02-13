@@ -60,16 +60,22 @@ function Navbar({ user, setUser }) {
 
           {user.login ? (
             <>
-              <img
-                src={UserIcon}
-                alt="user avatar"
-                className="me-3"
-                style={{ width: "32px", height: "32px" }}
-              />
-              <div className="d-flex flex-column  me-2 mb-2">
-                <small className="fw-semibold">Welcome</small>
-                <small>{user.email}</small>
-              </div>
+              <NavLink
+                to={`/profile/${user.userId}`}
+                className={"settings-link"}
+                title="Profile"
+              >
+                <img
+                  src={UserIcon}
+                  alt="user avatar"
+                  className="me-3"
+                  style={{ width: "32px", height: "32px" }}
+                />
+                <div className="d-flex flex-column  me-2 mb-2">
+                  <small className="fw-semibold">Welcome</small>
+                  <small>{user.email}</small>
+                </div>
+              </NavLink>
 
               <button
                 className="btn btn-outline-danger m-1"

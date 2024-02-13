@@ -19,3 +19,15 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.settings-link {
+  display: flex;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
+
+.settings-link:hover {
+  background-color: #ececec;
+  border-radius: 0.3rem;
+}
