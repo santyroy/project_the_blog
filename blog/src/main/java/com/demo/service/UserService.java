@@ -4,9 +4,11 @@ import com.demo.dto.LoginRequestDTO;
 import com.demo.dto.UserRequestDTO;
 import com.demo.entity.ForgotPassword;
 import com.demo.entity.User;
+import com.demo.entity.UserImage;
 import com.demo.entity.UserOTP;
 import com.demo.exception.*;
 import com.demo.repository.ForgetPasswordRepository;
+import com.demo.repository.UserImageRepository;
 import com.demo.repository.UserOTPRepository;
 import com.demo.repository.UserRepository;
 import com.demo.security.CustomUserDetails;
@@ -20,25 +22,34 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
     private final Logger LOG = LoggerFactory.getLogger(UserService.class);
+    public static String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads";
 
     private final UserRepository userRepository;
+    private final UserImageRepository userImageRepository;
     private final UserOTPRepository userOTPRepository;
     private final ForgetPasswordRepository forgetPasswordRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
 
-    public UserService(UserRepository userRepository, UserOTPRepository userOTPRepository, ForgetPasswordRepository forgetPasswordRepository, PasswordEncoder passwordEncoder, AuthenticationManager authManager) {
+    public UserService(UserRepository userRepository, UserImageRepository userImageRepository, UserOTPRepository userOTPRepository, ForgetPasswordRepository forgetPasswordRepository, PasswordEncoder passwordEncoder, AuthenticationManager authManager) {
         this.userRepository = userRepository;
+        this.userImageRepository = userImageRepository;
         this.userOTPRepository = userOTPRepository;
         this.forgetPasswordRepository = forgetPasswordRepository;
         this.passwordEncoder = passwordEncoder;
@@ -212,6 +223,39 @@ public class UserService {
             LOG.info("New OTP URL for user " + user.getEmail()
                     + " is: " + "http://localhost:8080/api/v1/auth/signupConfirm/" + user.getId() + "/" + otp);
 
+        }
+    }
+
+    public String uploadUserImage(Integer userId, MultipartFile file) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            throw new UserNotFoundException("User not found to complete registration");
+        }
+
+        UUID uuid = UUID.randomUUID();
+        StringBuilder fileName = new StringBuilder();
+
+        if(!file.isEmpty() && file.getOriginalFilename() != null) {
+            String fileExtension = file.getOriginalFilename().split("\\.")[1];
+            fileName.append(uuid).append(".").append(fileExtension);
+        }
+        Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, fileName.toString());
+
+        try {
+            Optional<UserImage> imageByUser = userImageRepository.findByUser(userOpt.get());
+            if(imageByUser.isEmpty()) {
+                userImageRepository.save(new UserImage(fileNameAndPath.toString(), userOpt.get()));
+            } else {
+                UserImage userImage = imageByUser.get();
+                userImage.setPath(fileNameAndPath.toString());
+                userImageRepository.save(userImage);
+            }
+
+            Files.write(fileNameAndPath, file.getBytes());
+            return "Uploaded images: " + fileName;
+        } catch (IOException e) {
+            LOG.error("Path not found: " + UPLOAD_DIRECTORY);
+            return "";
         }
     }
 }

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -73,5 +74,14 @@ public class UserController {
                 new ResponseDTO(true, "200", "User deleted successfully", null),
                 HttpStatus.OK
         );
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<?> uploadImage(@PathVariable Integer id, MultipartFile file) {
+        String response = userService.uploadUserImage(id, file);
+        if (response.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Path not found");
+        }
+        return ResponseEntity.ok("Uploaded images: " + file.getOriginalFilename());
     }
 }
