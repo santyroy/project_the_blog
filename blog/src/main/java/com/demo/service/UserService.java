@@ -235,7 +235,7 @@ public class UserService {
         UUID uuid = UUID.randomUUID();
         StringBuilder fileName = new StringBuilder();
 
-        if(!file.isEmpty() && file.getOriginalFilename() != null) {
+        if (!file.isEmpty() && file.getOriginalFilename() != null) {
             String fileExtension = file.getOriginalFilename().split("\\.")[1];
             fileName.append(uuid).append(".").append(fileExtension);
         }
@@ -243,7 +243,7 @@ public class UserService {
 
         try {
             Optional<UserImage> imageByUser = userImageRepository.findByUser(userOpt.get());
-            if(imageByUser.isEmpty()) {
+            if (imageByUser.isEmpty()) {
                 userImageRepository.save(new UserImage(fileNameAndPath.toString(), userOpt.get()));
             } else {
                 UserImage userImage = imageByUser.get();
@@ -257,5 +257,18 @@ public class UserService {
             LOG.error("Path not found: " + UPLOAD_DIRECTORY);
             return "";
         }
+    }
+
+    public String getImageByUser(Integer userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            throw new UserNotFoundException("User not found to complete registration");
+        }
+
+        Optional<UserImage> imageByUser = userImageRepository.findByUser(userOpt.get());
+        if (imageByUser.isPresent()) {
+            return imageByUser.get().getPath();
+        }
+        return "";
     }
 }
