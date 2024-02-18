@@ -234,6 +234,7 @@ public class UserService {
 
         UUID uuid = UUID.randomUUID();
         StringBuilder fileName = new StringBuilder();
+        StringBuilder oldFileNameAndPath = new StringBuilder();
 
         if (!file.isEmpty() && file.getOriginalFilename() != null) {
             String fileExtension = file.getOriginalFilename().split("\\.")[1];
@@ -247,12 +248,14 @@ public class UserService {
                 userImageRepository.save(new UserImage(fileNameAndPath.toString(), userOpt.get()));
             } else {
                 UserImage userImage = imageByUser.get();
+                oldFileNameAndPath.append(userImage.getPath());
                 userImage.setPath(fileNameAndPath.toString());
                 userImageRepository.save(userImage);
             }
 
             Files.write(fileNameAndPath, file.getBytes());
-            return "Uploaded images: " + fileName;
+            Files.delete(Path.of(oldFileNameAndPath.toString()));
+            return fileName.toString();
         } catch (IOException e) {
             LOG.error("Path not found: " + UPLOAD_DIRECTORY);
             return "";

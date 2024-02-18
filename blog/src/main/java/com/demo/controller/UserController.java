@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +26,8 @@ import static com.demo.util.Convertor.convertToUserResponseDTO;
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
+
+    public static String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads";
 
     private final UserService userService;
 
@@ -83,29 +87,41 @@ public class UserController {
     public ResponseEntity<?> uploadImage(@PathVariable Integer id, MultipartFile file) {
         String response = userService.uploadUserImage(id, file);
         if (response.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Path not found");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO
+                    (false, "500", "Path not found", null));
+        } else {
+            try (InputStream in = new FileInputStream(UPLOAD_DIRECTORY + "/" + response)) {
+                return ResponseEntity.ok(in.readAllBytes());
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO
+                        (false, "500", "Path not found", null));
+            }
         }
-        return ResponseEntity.ok("Uploaded images: " + file.getOriginalFilename());
     }
 
     @GetMapping("/images/{id}")
     public ResponseEntity<?> downloadImage(@PathVariable Integer id) {
         String imagePath = userService.getImageByUser(id);
         if (null == imagePath || imagePath.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Image found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDTO(false, "404", "No Image found", null));
         }
 
         try (InputStream in = new FileInputStream(imagePath)) {
             if (imagePath.contains(".jpg")) {
                 return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.IMAGE_JPEG).body(in.readAllBytes());
+//                return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "200", "Image Found", imagePath));
             } else if (imagePath.contains(".png")) {
                 return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.IMAGE_PNG).body(in.readAllBytes());
+//                return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "200", "Image Found", imagePath));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Image found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseDTO(false, "404", "No Image found", null));
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Image found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDTO(false, "404", "No Image found", null));
         }
     }
 }

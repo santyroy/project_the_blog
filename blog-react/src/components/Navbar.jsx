@@ -66,7 +66,7 @@ function Navbar({ user, setUser }) {
                 title="Profile"
               >
                 <img
-                  src={UserIcon}
+                  src={user.img ? user.img : UserIcon}
                   alt="user avatar"
                   className="me-3"
                   style={{ width: "32px", height: "32px" }}

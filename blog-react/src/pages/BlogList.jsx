@@ -5,7 +5,7 @@ import BlogSearch from "../components/BlogSearch";
 
 import PropTypes from "prop-types";
 
-function BlogList({ user }) {
+function BlogList({ user, setUser }) {
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
@@ -66,6 +66,32 @@ function BlogList({ user }) {
 
     getUserDetails();
   }, [user.userId, token]);
+
+  useEffect(() => {
+    console.log("Nav JWT: ", token);
+    const getProfileImage = async () => {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/users/images/${user.userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.ok) {
+        console.log(response);
+        const imagebytes = await response.arrayBuffer();
+        const base64Flag = "data:image/jpeg;base64,";
+        const imageStr = arrayBufferToBase64(imagebytes);
+        setUser({ ...user, img: base64Flag + imageStr });
+      }
+    };
+
+    getProfileImage();
+  }, [user.userId, token]);
+
+  function arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = [].slice.call(new Uint8Array(buffer));
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return window.btoa(binary);
+  }
 
   function initializePageNumbers(pages) {
     let temp = [];
@@ -175,6 +201,7 @@ function BlogList({ user }) {
 
 BlogList.propTypes = {
   user: PropTypes.object,
+  setUser: PropTypes.func,
 };
 
 export default BlogList;

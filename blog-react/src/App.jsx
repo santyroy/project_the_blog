@@ -22,6 +22,7 @@ function App() {
     exp: "",
     role: "",
     login: false,
+    img: "",
   });
 
   return (
@@ -37,7 +38,10 @@ function App() {
         <Route path="resetPassword" element={<ResetPassword />} />
 
         <Route element={<PrivateRoutes user={user} setUser={setUser} />}>
-          <Route path="blogs" element={<BlogList user={user} />}>
+          <Route
+            path="blogs"
+            element={<BlogList user={user} setUser={setUser} />}
+          >
             <Route path="add" element={<AddBlog userId={user.userId} />} />
           </Route>
           <Route path="blogs/:id" element={<BlogDetail />} />
