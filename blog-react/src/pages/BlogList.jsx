@@ -68,14 +68,12 @@ function BlogList({ user, setUser }) {
   }, [user.userId, token]);
 
   useEffect(() => {
-    console.log("Nav JWT: ", token);
     const getProfileImage = async () => {
       const response = await fetch(
         `http://localhost:8080/api/v1/users/images/${user.userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.ok) {
-        console.log(response);
         const imagebytes = await response.arrayBuffer();
         const base64Flag = "data:image/jpeg;base64,";
         const imageStr = arrayBufferToBase64(imagebytes);

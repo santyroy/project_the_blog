@@ -71,7 +71,7 @@ public class BlogService {
     public Page<Blog> getBlogPageByUserId(Integer userId, Integer pageNo) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
-        Pageable pageWithFive = PageRequest.of(pageNo, 10, Sort.by(Sort.Direction.DESC, "created"));
+        Pageable pageWithFive = PageRequest.of(pageNo, 5, Sort.by(Sort.Direction.DESC, "created"));
         return blogRepository.findByUser(user, pageWithFive);
     }
 
